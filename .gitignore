@@ -1,0 +1,108 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class WeatherAPIProgram {
+    private static final String API_BASE_URL = "https://api.example.com/weather"; // Replace with your API endpoint
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int option;
+        
+        do {
+            printMenu();
+            option = scanner.nextInt();
+            
+            switch (option) {
+                case 1:
+                    getWeatherData(scanner);
+                    break;
+                case 2:
+                    getWindSpeedData(scanner);
+                    break;
+                case 3:
+                    getPressureData(scanner);
+                    break;
+                case 0:
+                    System.out.println("Exiting program...");
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        } while (option != 0);
+        
+        scanner.close();
+    }
+
+    private static void printMenu() {
+        System.out.println("Select an option:");
+        System.out.println("1. Get weather");
+        System.out.println("2. Get Wind Speed");
+        System.out.println("3. Get Pressure");
+        System.out.println("0. Exit");
+    }
+
+    private static void getWeatherData(Scanner scanner) {
+        System.out.print("Enter date (YYYY-MM-DD): ");
+        String date = scanner.next();
+        String url = API_BASE_URL + "/weather?date=" + date;
+        makeAPIRequest(url, "temperature");
+    }
+
+    private static void getWindSpeedData(Scanner scanner) {
+        System.out.print("Enter date (YYYY-MM-DD): ");
+        String date = scanner.next();
+        String url = API_BASE_URL + "/windSpeed?date=" + date;
+        makeAPIRequest(url, "wind.speed");
+    }
+
+    private static void getPressureData(Scanner scanner) {
+        System.out.print("Enter date (YYYY-MM-DD): ");
+        String date = scanner.next();
+        String url = API_BASE_URL + "/pressure?date=" + date;
+        makeAPIRequest(url, "pressure");
+    }
+
+    private static void makeAPIRequest(String url, String dataKey) {
+        try {
+            URL apiUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.connect();
+
+            if (connection.getResponseCode() == 200) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String response = reader.readLine();
+                reader.close();
+
+                // Parse JSON response and extract the required data
+                // You can use JSON libraries like Jackson or Gson for this purpose
+                // For simplicity, let's assume the response is a JSON string with the dataKey as the key
+                // Example: {"temperature": 25.5}
+                double value = parseValueFromJson(response, dataKey);
+
+                System.out.println("Result: " + value);
+            } else {
+                System.out.println("Failed to retrieve data. HTTP error code: " + connection.getResponseCode());
+            }
+
+            connection.disconnect();
+        } catch (IOException e) {
+            System.out.println("Error occurred while making the API request: " + e.getMessage());
+        }
+    }
+
+    private static double parseValueFromJson(String jsonString, String key) {
+        // Parse JSON string and extract the value corresponding to the key
+        // You can use JSON libraries like Jackson or Gson for this purpose
+        // For simplicity, let's assume the response is a JSON string with the key-value pair
+        // Example: {"temperature": 25.5}
+        // In this example, the method will return 25.5 for the key "temperature"
+        // You should replace this with the actual JSON parsing code for your API response format
+        // For example, using Gson: Gson gson = new Gson(); WeatherData weatherData = gson.fromJson(jsonString, WeatherData.class);
+        // Then, you can access the value with weatherData.getTemperature()
+        return 0.0; // Replace this with your JSON parsing code
+    }
+}
